@@ -1,0 +1,23 @@
+#binaries
+game
+*.out
+*.exe
+
+#object files
+*.object
+
+#build directores
+build/
+bin/
+
+#temporary files
+*~
+*.swp
+*.swo
+
+#IDE / Editor files
+.vscode/
+.idea/
+
+#OS FILES
+.DS_Store
