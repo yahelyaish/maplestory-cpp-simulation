@@ -19,6 +19,8 @@ class ThreadPool
     condition_variable cv;
     bool stop=false;
     queue<packaged_task<void()>> jobs;
+    atomic<size_t> activeJobs{0};
+    condition_variable doneCv;
 
     void workerLoop();
     
@@ -26,6 +28,7 @@ class ThreadPool
     public:
     ThreadPool(size_t numOfWorkers=10);
     ~ThreadPool();
+    
     template<typename F>
     void submit(F&& f) 
     {
@@ -37,6 +40,9 @@ class ThreadPool
 
     cv.notify_one();
     }
+
+
+    void waitAll();
 
 };
 

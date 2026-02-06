@@ -1,14 +1,48 @@
 #include "game.h"
-#include "ThreadPool.h"
 
 Game::Game(string gameName):
-name(gameName),tPool(3)
+name(gameName),tPool(5)
 {
-    for (size_t i = 1; i <= MAX_CHARACTERS / 3; i++) {
-        addCharacter(make_unique<Theif>(to_string(i)));
-        addMission(make_unique<TheifTask>());
+    names=loadNamesFromFile(CHARACTER_NAMES_FILE);
+    
+    for (size_t i = 1; i <= MAX_CHARACTERS/10; i++) {
+        string name = pickRandomName(names);
+        addCharacter(make_unique<Thief>(name));
     }
 
+     for (size_t i = 1; i <= MAX_MISSIONS; i++) {
+         addMission(make_unique<ThiefTask>());
+    }
+
+}
+
+vector<string>Game::loadNamesFromFile(const string& filename)
+{
+    ifstream file(filename);
+    vector<string> result;
+    string line;
+
+    if (!file) {
+        throw runtime_error("Failed to open names file");
+    }
+
+    while (getline(file, line)) {
+        if (!line.empty())
+            result.push_back(line);
+    }
+    return result;
+}
+
+
+string Game::pickRandomName(vector<string>& names)
+{
+    static mt19937 rng{ random_device{}() }; //choose random number
+    uniform_int_distribution<size_t> dist(0, names.size() - 1);
+
+    size_t idx = dist(rng);
+    string chosen = names[idx];
+    names.erase(names.begin() + idx);
+    return chosen;
 }
 
 
@@ -41,21 +75,32 @@ eAddStatus Game::addMission(unique_ptr<Task>t){
 
 void Game::executeMission()
 {
-    while (!missionQueue.empty()) {
-        auto& taskRef = missionQueue.front();
-        if (!characters.empty() &&
-            taskRef->canBeExecutedBy(*characters.front())) {
+    while (!missionQueue.empty() && !characters.empty()) {
 
-            auto task = std::move(missionQueue.front());
-            missionQueue.pop_front();
-            
-            Character* character = characters.front().get();   
-            tPool.submit(  [task=std::move(task),character]
-            ()mutable 
-            {task->execute(*character); });
-        }else{
-            break;
+        auto& taskRef = missionQueue.front();
+
+        Character* character = nullptr;
+
+        // (Round Robin + canBeExecutedBy)
+        for (size_t i = 0; i < characters.size(); ++i) {
+            size_t idx = (nextCharacterIndex + i) % characters.size();
+            if (taskRef->canBeExecutedBy(*characters[idx])) {
+                character = characters[idx].get();
+                nextCharacterIndex = (idx + 1) % characters.size();
+                break;
+            }
         }
+
+        if (!character) {
+            return;
+        }
+        auto task = std::move(missionQueue.front());
+        missionQueue.pop_front();
+        tPool.submit(
+            [task = std::move(task), character]() mutable {
+                task->execute(*character);
+            }
+        );
     }
 }
 
@@ -65,8 +110,7 @@ void Game::printStatus() const{
     <<"members are: "<<endl;
     size_t index=1;
     for(auto& i:characters){
-        cout<<endl;
-        cout<<index++<<")"<<*i;
+        cout<<"\n"<<index++<<")"<<*i;
     }
 }
 
@@ -81,3 +125,5 @@ void Game:: printPlayers() const {
         cout<<*player;
     }
 }
+
+

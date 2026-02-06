@@ -3,7 +3,7 @@
 ThreadPool::ThreadPool(size_t numOfWorkers)
 {
     for(size_t i=0;i<numOfWorkers;i++){
-      workers.emplace_back(&ThreadPool::workerLoop,this);
+      workers.emplace_back(&ThreadPool::workerLoop,this); //take address of workerloop, for this thread.
     }
 }
 
@@ -22,7 +22,6 @@ ThreadPool::~ThreadPool(){
 }
 
 void ThreadPool::workerLoop(){
-    
     while(true){
     packaged_task<void()> jobToExecute;
     {  
@@ -34,9 +33,27 @@ void ThreadPool::workerLoop(){
             return;
         jobToExecute=std::move(jobs.front());
         jobs.pop();
-
+        ++activeJobs;
     }
     jobToExecute();
+
+    {
+            unique_lock<mutex> lock(mtx);
+            activeJobs--;
+            if (jobs.empty() && activeJobs == 0) {
+                doneCv.notify_all();
+            }
+    }
+
     }
 }
    
+
+    void ThreadPool::waitAll()
+{
+    unique_lock<mutex> lock(mtx);
+    doneCv.wait(lock, [this] {
+        return jobs.empty() && activeJobs == 0;
+    });
+
+}
