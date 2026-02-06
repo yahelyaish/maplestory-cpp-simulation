@@ -10,7 +10,7 @@ class MagicianTask:public Task{
         return (c.getATT()>=getDifficulty());
     }
 
-    virtual void execute(Character& c) const override{
+    virtual void execute(Character& c)  override{
         size_t attacking = (size_t)c.getATT();
         size_t tmp_difficulty = getDifficulty();
         while (tmp_difficulty > 0) {

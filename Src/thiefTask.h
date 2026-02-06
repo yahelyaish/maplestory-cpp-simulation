@@ -14,23 +14,21 @@ class ThiefTask:public Task{
         return (c.getATT()>=getDifficulty());
     }
 
-    virtual void execute(Character& c) const override{
-        size_t attacking = c.getATT(); //changing ATT while lvling up its problematic
-        size_t tmp_lifeTime =getLifeTime();
+    virtual void execute(Character& c)  override{
+    int attacking = c.getATT();
 
+    if (attacking <= 0)
+        return;
 
-        while (tmp_lifeTime > 0) {
-        tmp_lifeTime -= attacking;
-        if(tmp_lifeTime==0){
-            break;
-        }
-       //  this_thread::sleep_for(chrono::milliseconds(100));
-        }
-        c.setExp(getRewardEXP());
-        {
-        unique_lock<mutex>lock(g_console_mtx);
-        cout<<c.getCharacterName()<<" finish executing task number: "<<getTaskID()<<endl;
-        }
-
-        }
+    while (lifeTime > 0) {
+        lifeTime -= attacking;
+    }
+    c.setExp(getRewardEXP());
+    {
+        unique_lock<mutex> lock(g_console_mtx);
+        cout << c.getCharacterName()
+             << " finish executing task number: "
+             << getTaskID() << endl;
+    }
+}
 };

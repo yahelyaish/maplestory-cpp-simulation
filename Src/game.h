@@ -4,6 +4,7 @@
 //and with threadpool the characters will accomplish the tasks.
 //each task they do , they get more exp eventually they will level up.
 //to sum up.. MAPLE STORY TIME
+#include <future>
 #include <iostream>
 #include "character.h"
 #include "team.h"
@@ -15,7 +16,7 @@
 #include "ThreadPool.h"
 #include <random>
 #include <fstream>
-
+#include <future>
 using namespace std;
 
 static const int MAX_CHARACTERS = 30;
@@ -37,15 +38,15 @@ class Game{
     ThreadPool tPool;
     size_t nextCharacterIndex =0;
     vector<string> names;
+    vector<future<void>> activeFutures;
 
     public:
     Game(string gameName="MapleStory");
-
     Game(const Game &other) = delete;
     Game& operator=(const Game& other) = delete;
     Game(Game&&other) = delete;
     Game& operator=(Game&& other) = delete;
-
+    ~Game();
     bool canAddMoreCharacters() const;
     eAddStatus addCharacter(unique_ptr<Character> c);
 
@@ -60,7 +61,7 @@ class Game{
     string pickRandomName(vector<string>& names);
     static vector<string> loadNamesFromFile(const string& filename);
     void setName(const string& name);
-    void waitForMissions(){tPool.waitAll();}
+    void waitForMissions();
     inline bool hasMissions() const {return !missionQueue.empty();}
 };
 

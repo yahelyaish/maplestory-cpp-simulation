@@ -96,11 +96,12 @@ void Game::executeMission()
         }
         auto task = std::move(missionQueue.front());
         missionQueue.pop_front();
-        tPool.submit(
+        auto fut = tPool.submit(
             [task = std::move(task), character]() mutable {
                 task->execute(*character);
             }
         );
+        activeFutures.push_back(std::move(fut));
     }
 }
 
@@ -127,3 +128,16 @@ void Game:: printPlayers() const {
 }
 
 
+void Game::waitForMissions(){
+    for(auto& f:activeFutures){
+        f.wait();
+    }
+    activeFutures.clear();
+}
+
+Game::~Game(){
+    for (auto& fut : activeFutures) {
+        if (fut.valid())
+            fut.wait();
+    }
+}

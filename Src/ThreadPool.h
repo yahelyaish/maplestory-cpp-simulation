@@ -20,7 +20,7 @@ class ThreadPool
     bool stop=false;
     queue<packaged_task<void()>> jobs;
     atomic<size_t> activeJobs{0};
-    condition_variable doneCv;
+   // condition_variable doneCv;
 
     void workerLoop();
     
@@ -30,19 +30,20 @@ class ThreadPool
     ~ThreadPool();
     
     template<typename F>
-    void submit(F&& f) 
+    future<void> submit(F&& f) 
     {
     packaged_task<void()> task(forward<F>(f));
+    future<void> fut = task.get_future();
     {
         lock_guard<std::mutex> lock(mtx);
         jobs.push(std::move(task));
     }
 
     cv.notify_one();
+    return fut;
     }
 
-
-    void waitAll();
+  //  void waitAll();
 
 };
 

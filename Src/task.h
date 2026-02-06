@@ -12,7 +12,7 @@ protected:
     string name;
     size_t difficulty;
     size_t rewardEXP;
-    size_t lifeTime;
+    int lifeTime;
     size_t taskID;
 
 
@@ -28,7 +28,7 @@ public:
     size_t getLifeTime() const { return lifeTime; }
 
     virtual bool canBeExecutedBy(const Character& c) const = 0;
-    virtual void execute(Character& c) const = 0;
+    virtual void execute(Character& c)  = 0;
 
     void print() const {
         cout << "\nTask ID: " << taskID

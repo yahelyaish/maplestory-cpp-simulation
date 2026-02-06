@@ -26,8 +26,10 @@ protected:
     size_t exp=0;
     size_t baseAttack=1;
     size_t baseDefence=1;
+    size_t numOfKILLS=0;
     mutex changeStates_mtx;
-    size_t numOfTask=0;
+
+
 virtual void toOs(ostream& os) const {
         os  <<"\nName: "<<name<<"\n"
             <<"Job: "<<getJobName()<<"\n"
@@ -35,7 +37,7 @@ virtual void toOs(ostream& os) const {
             <<"EXP: "<<getEXP()<<"\n"
             <<"ATT: "<<getATT()<<"\n"
             <<"DEF: "<<getDEF()<<endl
-            <<"number of Task Done "<< numOfTask <<endl;
+            <<"number of KILLS: "<< numOfKILLS <<endl;
      }
 public:
 

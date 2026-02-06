@@ -8,8 +8,8 @@ int main()
     g.printPlayers();
 
     while (g.hasMissions()) {
-        g.executeMission();   // משגר batch
-        g.waitForMissions();  // מחכה שיסתיים
+        g.executeMission();    
+        g.waitForMissions();  
     }
 
     cout << "STATUS:\n";

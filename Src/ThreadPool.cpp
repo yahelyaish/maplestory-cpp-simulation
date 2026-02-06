@@ -37,23 +37,21 @@ void ThreadPool::workerLoop(){
     }
     jobToExecute();
 
-    {
-            unique_lock<mutex> lock(mtx);
-            activeJobs--;
-            if (jobs.empty() && activeJobs == 0) {
-                doneCv.notify_all();
-            }
-    }
+    // {
+    //         unique_lock<mutex> lock(mtx);
+    //         activeJobs--;
+    //         if (jobs.empty() && activeJobs == 0) {
+    //             doneCv.notify_all();
+    //         }
+    // }
 
     }
 }
-   
+//     void ThreadPool::waitAll()
+// {
+//     unique_lock<mutex> lock(mtx);
+//     doneCv.wait(lock, [this] {
+//         return jobs.empty() && activeJobs == 0;
+//     });
 
-    void ThreadPool::waitAll()
-{
-    unique_lock<mutex> lock(mtx);
-    doneCv.wait(lock, [this] {
-        return jobs.empty() && activeJobs == 0;
-    });
-
-}
+// }
