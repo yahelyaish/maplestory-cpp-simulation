@@ -1,0 +1,11 @@
+IronWarrior
+GoldenSword
+ThunderFist
+SteelGuardian
+FlameKnight
+MapleHero
+DragonSlayer
+StarryKnight
+IronShield
+CrimsonBlade
+LegendInMaking

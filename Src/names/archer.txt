@@ -1,0 +1,10 @@
+FireBowz
+FrozenArrow
+MapleSniper
+QuickShot
+BowAndArrow
+GoldenBow
+BlazeArrow
+SilentWind
+SwiftArrow
+WindRider

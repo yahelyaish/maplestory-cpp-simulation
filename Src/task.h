@@ -1,54 +1,52 @@
 #ifndef _TASK_H
 #define _TASK_H
-#include "character.h"
+
 #include <iostream>
 #include <string>
 #include <mutex>
+
+#include "character.h"
+#include "configurations.h"
+
 using namespace std;
 
 extern mutex g_console_mtx;
-class Task {
+
+// ======================================================
+// Task / Quest
+// Represents a monster-hunting quest
+// ======================================================
+
+class Task
+{
 protected:
-    string name;
-    size_t difficulty;
-    size_t rewardEXP;
-    int lifeTime;
-    size_t taskID;
+    string      name;
+    MonsterRank monsterRank;
+    size_t      taskID;
 
-
-    inline static size_t nextTaskID = 1;   // ✅ מונה יחיד ובטוח
+    inline static size_t nextTaskID = 1;
 
 public:
+    // ---- Ctor / Dtor ----
+    Task(const string& name, MonsterRank rank)
+        : name(name), monsterRank(rank), taskID(++nextTaskID) {}
+
     virtual ~Task() = default;
 
-    size_t getTaskID() const { return taskID; }
-    const string& getName() const { return name; }
-    size_t getDifficulty() const { return difficulty; }
-    size_t getRewardEXP() const { return rewardEXP; }
-    size_t getLifeTime() const { return lifeTime; }
+    // ---- Getters ----
+    size_t      getTaskID()   const { return taskID; }
+    const string& getName()   const { return name; }
+    MonsterRank getMonsterRank() const { return monsterRank; }
 
-    virtual bool canBeExecutedBy(const Character& c) const = 0;
-    virtual void execute(Character& c)  = 0;
+    size_t getRewardEXP() const;
+    int    getMonsterHP() const;
 
-    void print() const {
-        cout << "\nTask ID: " << taskID
-             << "\nName: " << name
-             << "\nDifficulty: " << difficulty
-             << "\nLifeTime: " << lifeTime
-             << "\nRewardEXP: " << rewardEXP << endl;
-    }
+    // ---- Gameplay ----
+    virtual bool canBeExecutedBy(const Character& c) const;
+    virtual void execute(Character& c);
 
-protected:
-    Task(const string& name = "defaultTask",
-         size_t difficulty = 10,
-         size_t rewardEXP = 10,
-         size_t lifeTime = 20)
-        : name(name),
-          difficulty(difficulty),
-          rewardEXP(rewardEXP),
-          lifeTime(lifeTime),
-          taskID(nextTaskID++) 
-    {}
+    // ---- Debug ----
+    void print() const;
 };
 
-#endif //_TASK_H
+#endif // _TASK_H

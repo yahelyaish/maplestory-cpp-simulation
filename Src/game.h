@@ -1,68 +1,81 @@
 #ifndef _H_GAME
 #define _H_GAME
-//total purpose of this game, is make characters, have a queue of tasks,
-//and with threadpool the characters will accomplish the tasks.
-//each task they do , they get more exp eventually they will level up.
-//to sum up.. MAPLE STORY TIME
-#include <future>
+
 #include <iostream>
-#include "character.h"
-#include "team.h"
-#include <memory>
 #include <vector>
-#include <queue>
-#include "thiefTask.h"
-#include "thief.h"
-#include "ThreadPool.h"
-#include <random>
-#include <fstream>
+#include <deque>
+#include <memory>
 #include <future>
+
+#include "configurations.h"
+#include "character.h"
+#include "task.h"
+#include "ThreadPool.h"
+#include "name_manager.h"
+
 using namespace std;
 
-static const int MAX_CHARACTERS = 30;
-static const size_t MAX_MISSIONS = 30;
-#define CHARACTER_NAMES_FILE "character_names.txt"
+// ======================================================
+// Constants
+// ======================================================
+
+static const int    MAX_CHARACTERS = 30;
+static const size_t MAX_MISSIONS   = 30;
+
+// ======================================================
+// Status
+// ======================================================
 
 enum class eAddStatus {
     SUCCESS,
     FULL,
-    INVALID_CHARACTER
+    INVALID
 };
 
-class Game{
+// ======================================================
+// Game Class
+// ======================================================
 
-    private:
+class Game
+{
+private:
     string name;
-    deque<unique_ptr<Task>> missionQueue;
-    vector<unique_ptr<Character>>characters;
-    ThreadPool tPool;
-    size_t nextCharacterIndex =0;
-    vector<string> names;
-    vector<future<void>> activeFutures;
 
-    public:
-    Game(string gameName="MapleStory");
-    Game(const Game &other) = delete;
-    Game& operator=(const Game& other) = delete;
-    Game(Game&&other) = delete;
-    Game& operator=(Game&& other) = delete;
+    vector<unique_ptr<Character>> characters;
+    deque<unique_ptr<Task>>       questQueue;
+
+    ThreadPool           threadPool;
+    vector<future<void>> activeFutures;
+    size_t               nextCharacterIndex = 0;
+
+    NameManager nameManager;   // 👈 אחראי בלעדי לשמות
+
+public:
+    explicit Game(string gameName = "MapleStory");
     ~Game();
-    bool canAddMoreCharacters() const;
+
+    Game(const Game&)            = delete;
+    Game& operator=(const Game&) = delete;
+    Game(Game&&)                 = delete;
+    Game& operator=(Game&&)      = delete;
+
+    // ---- Characters ----
+    bool       canAddCharacter() const;
     eAddStatus addCharacter(unique_ptr<Character> c);
 
-    bool canAddMoreMissions()const;
-    eAddStatus addMission(unique_ptr<Task>t);
+    // ---- Quests ----
+    bool       canAddQuest() const;
+    eAddStatus addQuest(unique_ptr<Task> q);
+    void       dispatchQuests();
+    inline bool hasQuests() const { return !questQueue.empty(); }
 
-    void executeMission();
+    // ---- Flow ----
+    void waitForAllQuests();
 
+    // ---- Debug ----
     void printStatus() const;
-    void printMissions() const ;
-    void printPlayers() const ;
-    string pickRandomName(vector<string>& names);
-    static vector<string> loadNamesFromFile(const string& filename);
-    void setName(const string& name);
-    void waitForMissions();
-    inline bool hasMissions() const {return !missionQueue.empty();}
+    void printQuests() const;
+    void printCharacters() const;
 };
 
-#endif //_H_GAME
+#endif // _H_GAME

@@ -1,0 +1,10 @@
+1)add an exceptions for situations the monster is stronger than the character,
+  or we look for another character to try defeat the monster.
+
+2)add an option that many characters(threads) hit the same monster and split the EXP - make it thread safe!
+
+3)add an option that character that fight stronger monster eventually will die, and the HP of the monster
+  stays as it was (if he hit it a bit).to demonstrate a fight, than if the character dies, another gets
+  chance to play.  
+
+4)think about ways to make this project be threaded, also use more things from REALITY.

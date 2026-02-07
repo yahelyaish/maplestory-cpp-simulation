@@ -1,17 +1,25 @@
 #include "game.h"
+#include <mutex>
+#include <iostream>
+
+using namespace std;
 
 mutex g_console_mtx;
 
 int main()
 {
     Game g("MapleStory");
-    g.printPlayers();
 
-    while (g.hasMissions()) {
-        g.executeMission();    
-        g.waitForMissions();  
+    cout << "=== Initial Characters ===\n";
+    g.printCharacters();
+
+    while (g.hasQuests()) {
+        g.dispatchQuests();
+        g.waitForAllQuests();
     }
 
-    cout << "STATUS:\n";
-    g.printPlayers();
+    cout << "\n=== Final Status ===\n";
+    g.printCharacters();
+
+    return 0;
 }
