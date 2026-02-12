@@ -1,12 +1,9 @@
 #ifndef _THREAD_POOL
 #define _THREAD_POOL
 
-#include <iostream>
-using namespace std;
 
 #include <vector>
 #include <queue>
-#include <functional>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -21,14 +18,14 @@ using namespace std;
 class ThreadPool
 {
 private:
-    vector<thread> workers;
+    std::vector<std::thread> workers;
 
-    mutex mtx;
-    condition_variable cv;
+    std::mutex mtx;
+    std::condition_variable cv;
     bool stop = false;
 
-    queue<packaged_task<void()>> jobs;
-    atomic<size_t> activeJobs{0};
+    std::queue<std::packaged_task<void()>> jobs;
+    std::atomic<size_t> activeJobs{0};
 
     void workerLoop();
 
@@ -37,13 +34,13 @@ public:
     ~ThreadPool();
 
     template <typename F>
-    future<void> submit(F&& f)
+    std::future<void> submit(F&& f)
     {
-        packaged_task<void()> task(forward<F>(f));
-        future<void> fut = task.get_future();
+        std::packaged_task<void()> task(forward<F>(f));
+        std::future<void> fut = task.get_future();
 
         {
-            lock_guard<mutex> lock(mtx);
+            std::lock_guard<std::mutex> lock(mtx);
             jobs.push(std::move(task));
         }
 

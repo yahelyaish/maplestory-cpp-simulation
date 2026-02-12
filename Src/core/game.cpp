@@ -1,25 +1,26 @@
-#include "game.h"
-#include "configurations.h"
-#include "name_manager.h"
+#include "core/game.h"
+#include "core/character.h"
+#include "jobs/jobFactory.h"
+#include "systems/name_manager.h"
+#include <memory>
+#include <string>
 
 // ======================================================
 // Ctor / Dtor
 // ======================================================
 
 Game::Game(string gameName)
-    : name(gameName), threadPool(5)
+    : name(gameName), threadPool(1)
 {
-
     nameManager.loadAll();
-    
-    // ---- Spawn initial characters ----
-    for (size_t i = 0; i < MAX_CHARACTERS / 10; ++i) {
-        eJobType job = static_cast<eJobType>(i%static_cast<int>(eJobType::JOB_COUNT));
-        string charName = nameManager.getRandomName(job);
-        addCharacter(make_unique<Character>(charName, job));
+
+    for (size_t i = 0; i<MAX_CHARACTERS; ++i) {
+        size_t jobIdx = i%static_cast<size_t>(eJobType::JOB_COUNT);
+        string charName = nameManager.getRandomName(eJobType(jobIdx));
+        unique_ptr<Job> TheJob = JobFactory::create(eJobType(jobIdx));
+        addCharacter(make_unique<Character>(charName,std::move(TheJob)));
     }
 
-    // ---- Spawn initial quests (easy monsters) ----
     for (size_t i = 0; i < MAX_MISSIONS; ++i) {
         addQuest(make_unique<Task>(
             "Hunt Slime #" + to_string(i + 1),
@@ -34,6 +35,7 @@ Game::~Game()
         if (fut.valid())
             fut.wait();
     }
+
 }
 
 
@@ -50,7 +52,6 @@ eAddStatus Game::addCharacter(unique_ptr<Character> c)
 {
     if (!c || !canAddCharacter())
         return eAddStatus::FULL;
-
     characters.push_back(std::move(c));
     return eAddStatus::SUCCESS;
 }
@@ -84,7 +85,6 @@ void Game::dispatchQuests()
         auto& quest = questQueue.front();
         Character* chosen = nullptr;
 
-        // Round-robin + capability check
         for (size_t i = 0; i < characters.size(); ++i) {
             size_t idx = (nextCharacterIndex + i) % characters.size();
             if (quest->canBeExecutedBy(*characters[idx])) {

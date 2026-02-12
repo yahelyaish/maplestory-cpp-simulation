@@ -1,4 +1,4 @@
-#include "ThreadPool.h"
+#include "systems/ThreadPool.h"
 
 ThreadPool::ThreadPool(size_t numOfWorkers)
 {
@@ -10,7 +10,7 @@ ThreadPool::ThreadPool(size_t numOfWorkers)
 ThreadPool::~ThreadPool()
 {
     {
-        unique_lock<mutex> lock(mtx);
+        std::unique_lock<std::mutex> lock(mtx);
         stop = true;
     }
 
@@ -25,10 +25,10 @@ ThreadPool::~ThreadPool()
 void ThreadPool::workerLoop()
 {
     while (true) {
-        packaged_task<void()> jobToExecute;
+        std::packaged_task<void()> jobToExecute;
 
         {
-            unique_lock<mutex> lock(mtx);
+             std::unique_lock< std::mutex> lock(mtx);
             cv.wait(lock, [this] {
                 return stop || !jobs.empty();
             });

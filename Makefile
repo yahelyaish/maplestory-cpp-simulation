@@ -8,24 +8,23 @@ CXX := g++
 # =========================
 SRCDIR := Src
 INCDIR := Inc
+BUILDDIR := build
 
 # =========================
 # Target
 # =========================
-TARGET := game
+TARGET := $(BUILDDIR)/game
 
 # =========================
 # Flags
 # =========================
-CXXFLAGS := -Wall -Wextra -std=c++17 -ggdb -pthread \
-            -I$(INCDIR) \
-            -I$(INCDIR)/Character \
-            -I$(INCDIR)/Task
+CXXFLAGS := -Wall -Wextra -std=c++20 -ggdb -pthread -I$(INCDIR)
 
 # =========================
-# Sources
+# Sources & Objects
 # =========================
-SOURCES := $(wildcard $(SRCDIR)/**/*.cpp) $(wildcard $(SRCDIR)/*.cpp)
+SOURCES := $(shell find $(SRCDIR) -name "*.cpp")
+OBJECTS := $(patsubst $(SRCDIR)/%.cpp,$(BUILDDIR)/%.o,$(SOURCES))
 
 # =========================
 # Phony targets
@@ -38,17 +37,25 @@ SOURCES := $(wildcard $(SRCDIR)/**/*.cpp) $(wildcard $(SRCDIR)/*.cpp)
 all: $(TARGET)
 
 # =========================
-# Build
+# Link step
 # =========================
-$(TARGET):
-	@echo "🛠️  Building $(TARGET)"
-	$(CXX) $(CXXFLAGS) $(SOURCES) -o $(TARGET)
+$(TARGET): $(OBJECTS)
+	@echo "🔗 Linking game"
+	@mkdir -p $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(TARGET)
+
+# =========================
+# Compile step
+# =========================
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # =========================
 # Run
 # =========================
 run: $(TARGET)
-	@echo "▶ Running $(TARGET)"
+	@echo "▶ Running game"
 	./$(TARGET)
 
 # =========================
@@ -56,4 +63,4 @@ run: $(TARGET)
 # =========================
 clean:
 	@echo "🧹 Cleaning"
-	rm -f $(TARGET)
+	rm -rf $(BUILDDIR)

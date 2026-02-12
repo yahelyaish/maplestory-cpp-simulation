@@ -1,13 +1,11 @@
 #ifndef _TASK_H
 #define _TASK_H
 
-#include <iostream>
 #include <string>
 #include <mutex>
 
 #include "character.h"
-#include "configurations.h"
-
+#include "monsters/monsters.h"
 using namespace std;
 
 extern mutex g_console_mtx;
@@ -17,19 +15,23 @@ extern mutex g_console_mtx;
 // Represents a monster-hunting quest
 // ======================================================
 
+
+
+
 class Task
 {
 protected:
     string      name;
     MonsterRank monsterRank;
     size_t      taskID;
+    int         currentHP;
 
     inline static size_t nextTaskID = 1;
 
 public:
     // ---- Ctor / Dtor ----
     Task(const string& name, MonsterRank rank)
-        : name(name), monsterRank(rank), taskID(++nextTaskID) {}
+        : name(name), monsterRank(rank),taskID(++nextTaskID),currentHP(getMonsterHP()) {}
 
     virtual ~Task() = default;
 

@@ -1,6 +1,4 @@
-#include "task.h"
-#include <chrono>
-#include <thread>
+#include "core/task.h"
 // ======================================================
 // Helpers
 // ======================================================
@@ -15,6 +13,7 @@ int Task::getMonsterHP() const
     return getMonsterProfile(monsterRank).baseHP;
 }
 
+
 // ======================================================
 // Gameplay
 // ======================================================
@@ -27,26 +26,30 @@ bool Task::canBeExecutedBy(const Character& c) const
 void Task::execute(Character& c)
 {
     int attacking = static_cast<int>(c.getATT());
-    int monsterHP = getMonsterHP();
-
     if (attacking <= 0)
         return;
 
     // Simulate fight
-    while (monsterHP > 0) {
-        monsterHP -= attacking;
-        this_thread::sleep_for(chrono::milliseconds(200));
+    while (currentHP > 0) {
+        currentHP -= attacking;
+        {
+            if(currentHP<=0){
+                currentHP=0;
+            }
+            unique_lock<mutex> lock(g_console_mtx);
+            cout<<c.getCharacterName()<<" hit "<<MonsterRankSTR[static_cast<int>(monsterRank)]
+            <<"! current TASKID = "<<taskID<<", "<<
+            currentHP<<" HP left\n";
+        }
+       // this_thread::sleep_for(chrono::seconds(1));
     }
-
-    c.setExp(getRewardEXP());
-
     {
         unique_lock<mutex> lock(g_console_mtx);
         cout << c.getCharacterName()
              << " defeated "
              << MonsterRankSTR[static_cast<int>(monsterRank)]
-             << " (Quest ID: " << getTaskID() << ")"
              << endl;
+        c.setExp(getRewardEXP());
     }
 }
 

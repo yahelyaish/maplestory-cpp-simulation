@@ -1,17 +1,15 @@
 #ifndef _H_GAME
 #define _H_GAME
 
-#include <iostream>
 #include <vector>
 #include <deque>
 #include <memory>
 #include <future>
 
-#include "configurations.h"
 #include "character.h"
 #include "task.h"
-#include "ThreadPool.h"
-#include "name_manager.h"
+#include "systems/ThreadPool.h"
+#include "systems/name_manager.h"
 
 using namespace std;
 
@@ -43,12 +41,10 @@ private:
 
     vector<unique_ptr<Character>> characters;
     deque<unique_ptr<Task>>       questQueue;
-
     ThreadPool           threadPool;
     vector<future<void>> activeFutures;
     size_t               nextCharacterIndex = 0;
-
-    NameManager nameManager;   // 👈 אחראי בלעדי לשמות
+    NameManager nameManager;  
 
 public:
     explicit Game(string gameName = "MapleStory");

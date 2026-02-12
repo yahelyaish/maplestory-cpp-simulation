@@ -1,23 +1,37 @@
-#binaries
-game
+# =========================
+# Build output
+# =========================
+build/
+*.o
 *.out
 *.exe
 
-#object files
-*.object
+# =========================
+# Compilation database
+# =========================
+compile_commands.json
 
-#build directores
-build/
-bin/
+# =========================
+# Editor / IDE
+# =========================
+.vscode/
+.idea/
 
-#temporary files
+# =========================
+# Clangd cache
+# =========================
+.cache/
+.clangd/
+
+# =========================
+# Temporary / swap files
+# =========================
 *~
 *.swp
 *.swo
 
-#IDE / Editor files
-.vscode/
-.idea/
-
-#OS FILES
+# =========================
+# OS files
+# =========================
 .DS_Store
+Thumbs.db

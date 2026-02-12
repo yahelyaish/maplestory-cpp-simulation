@@ -1,9 +1,9 @@
-#include "name_manager.h"
+#include "systems/name_manager.h"
 #include <fstream>
-#include <random>
 #include <stdexcept>
+#include "systems/random.h"
+#include <iostream>
 
-using namespace std;
 
 static vector<string> loadFile(const string& filename)
 {
@@ -32,16 +32,19 @@ void NameManager::loadAll()
 string NameManager::getRandomName(eJobType job)
 {
     auto& pool = namePools[static_cast<int>(job)];
-
+    cout<<"succeeded get name value\n";
+    auto& rnd = Random::get();
     if (pool.empty())
         return "UnknownHero";
-
-    static mt19937 rng{ random_device{}() };
-    uniform_int_distribution<size_t> dist(0, pool.size() - 1);
-
-    size_t idx = dist(rng);
+   
+    size_t idx =  rnd.getRandom(pool.size());
     string name = pool[idx];
-    pool.erase(pool.begin() + idx); // שלא יחזור
+    pool.erase(pool.begin() + idx); 
 
     return name;
+}
+
+string  NameManager::getFileNameJobs(eJobType job)
+{
+    return JOB_NAME_FILES[static_cast<int>(job)];
 }
